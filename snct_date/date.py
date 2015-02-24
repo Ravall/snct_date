@@ -8,6 +8,29 @@ import datetime
 from pytils import dt
 
 
+def date_diff(date1, date2):
+    '''
+    возвращает разницу между датами в днях
+    '''
+    return count_days(date1) - count_days(date2)
+
+
+def count_days(date):
+    '''
+    возвращает количество дней от 0000-00-00
+    '''
+    _y = int(date[2]) - 1
+    leap_years = _y/4 - _y/100 + _y/400
+    count_days = 365 * _y + leap_years
+    count_days = reduce(
+        lambda res, x: res + num_days_in_month(x, date[2]),
+        xrange(1, int(date[1])),
+        count_days
+    )
+    return count_days + int(date[0])
+
+
+
 def yyyy_mm_dd(date):
     '''
     возвращает кортеж дат в строку формате YYYY-mm-dd
@@ -20,7 +43,7 @@ def date_to_dict(date):
     переводим дату в кортеж для работы
     '''
     if type(date) == datetime.datetime or type(date) == datetime.date:
-        date_arr = (date.day, date.month, date.year)
+        date_arr = [date.day, date.month, date.year]
     else:
         date_arr = date.split('-')[::-1]
         date_arr = map(int, date_arr)
@@ -105,7 +128,7 @@ def today():
     текущая дата
     '''
     dt = datetime.datetime.now()
-    return (dt.day, dt.month, dt.year)
+    return [dt.day, dt.month, dt.year]
 
 
 def get_current_year():
@@ -242,12 +265,12 @@ def get_old_style_date(d, m, y):
 
 def month_range(date):
     return (
-        datetime.datetime(
+        datetime.date(
             date.year, date.month, 1
         ),
-        datetime.datetime(
+        datetime.date(
             date.year, date.month,
-            monthrange(date.year, date.month)[1]
+            num_days_in_month(date.month, date.year)
         )
     )
 
@@ -278,11 +301,11 @@ def sancta_datefrormat(date, format):
     date_arr = date_to_dict(date)
 
     if date_arr == today():
-        iToday = _(u'today')
-    elif date_shift(*(today()+(1,))) == date_arr:
-        iToday = _(u'tomorrow')
-    elif date_shift(*(today()+(-1,))) == date_arr:
-        iToday = _(u'yesterday')
+        iToday = u'Сегодня'
+    elif date_shift(*(today()+[1])) == date_arr:
+        iToday = u'Завтра'
+    elif date_shift(*(today()+[-1])) == date_arr:
+        iToday = u'Вчера'
     else:
         iToday = ''
     format = format.replace(u'[iToday]', iToday)
