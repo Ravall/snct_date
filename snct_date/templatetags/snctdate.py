@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from django import template
-from snct_date.date import sancta_datefrormat, date_to_dict, get_old_style_date, yyyy_mm_dd, num_days_in_month, date_shift
+from snct_date.date import (
+    sancta_datefrormat, date_to_dict, get_old_style_date,
+    yyyy_mm_dd, num_days_in_month, date_shift,orth_month
+)
 
 
 # pylint: disable=C0103
@@ -24,16 +27,6 @@ def snct_dinc(date, diff):
 @register.filter
 def number_month(date, case):
     number = date_to_dict(date)[1]
-    orth_month = {
-        'nominative': [
-            'январь', 'февраль', 'март', 'апрель', 'май', 'июнь',
-            'июль', 'август', 'сентябр', 'октябрь', 'ноябрь', 'декабрь'
-        ],
-        'genitive': [
-            'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
-            'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
-        ]
-    }
     return orth_month[case][number-1]
 
 @register.filter

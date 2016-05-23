@@ -7,6 +7,16 @@
 import datetime
 from pytils import dt
 
+orth_month = {
+        'nominative': [
+            'январь', 'февраль', 'март', 'апрель', 'май', 'июнь',
+            'июль', 'август', 'сентябр', 'октябрь', 'ноябрь', 'декабрь'
+        ],
+        'genitive': [
+            'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+            'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
+        ]
+    }
 
 def date_diff(date1, date2):
     '''
@@ -264,15 +274,31 @@ def get_old_style_date(d, m, y):
 
 
 def month_range(date):
-    return (
-        datetime.date(
-            date.year, date.month, 1
-        ),
-        datetime.date(
-            date.year, date.month,
-            num_days_in_month(date.month, date.year)
+    '''
+    массив месяца 1 число - 31/30 число
+    '''
+    if isinstance(date, (list, tuple)):
+        '''
+        если date - массив (день, месяц, год)
+        '''
+        date = map(int, date)
+        return (
+            (1, date[1], date[2]),
+            (
+                num_days_in_month(date[1], date[2]),
+                date[1], date[2]
+            )
         )
-    )
+    else:
+        return (
+            datetime.date(
+                date.year, date.month, 1
+            ),
+            datetime.date(
+                date.year, date.month,
+                num_days_in_month(date.month, date.year)
+            )
+        )
 
 
 
@@ -287,7 +313,7 @@ def sancta_datefrormat(date, format):
     [dd] - 02
 
     [M]  - янв
-    [M1] - январт
+    [M1] - январь
     [M2] - января
     [mm] - 01
     [m]  - 1
@@ -327,3 +353,35 @@ def sancta_datefrormat(date, format):
         if today()[2] == date_arr[2] \
         else format.replace(u'[iY]', str(date_arr[2]))
     return format.encode('utf-8')
+
+
+def day_maps(day):
+    '''
+    относительно текущего дня возвращает близкие даты
+    prev_month - начало предыдущего месяца
+    month_begin - начало текущего месяца
+    yesterday - вчера
+    current - выбранная дата
+    tomorrow - следующий день
+    month_end - конец текущего месяца
+    next_month - начало следующего месяца
+    '''
+    month_begin, month_end = month_range(day)
+
+    tomorrow = date_shift(*(day + [1]))
+    yesterday = date_shift(*(day + [-1]))
+    prev_month, x = month_range(date_shift(
+        *(month_begin + (-1,))
+    ))
+    next_month, x = month_range(date_shift(
+        *(month_end + (1,))
+    ))
+    return {
+        'prev_month': prev_month,
+        'month_begin': month_begin,
+        'yesterday': yesterday,
+        'current': day,
+        'tomorrow': tomorrow,
+        'month_end': month_end,
+        'next_month': next_month,
+    }
